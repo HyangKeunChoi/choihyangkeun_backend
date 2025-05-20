@@ -1,0 +1,13 @@
+package com.example.wirebarleyapi;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class WirebarleyApiApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(WirebarleyApiApplication.class, args);
+    }
+
+}
