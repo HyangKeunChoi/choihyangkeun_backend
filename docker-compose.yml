@@ -1,0 +1,8 @@
+version: ‘1.0’
+name: wirebarley
+services:
+  redis:
+    image: arm64v8/redis:6.2.6
+    restart: always
+    ports:
+      - 6381:6379
