@@ -19,6 +19,9 @@ dependencies {
     runtimeOnly("com.h2database:h2")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
+    compileOnly("org.projectlombok:lombok:1.18.24")
+    annotationProcessor("org.projectlombok:lombok:1.18.24")
+
     implementation("com.querydsl:querydsl-jpa")
     implementation("com.querydsl:querydsl-apt:$querydslVersion:jpa")
 }
