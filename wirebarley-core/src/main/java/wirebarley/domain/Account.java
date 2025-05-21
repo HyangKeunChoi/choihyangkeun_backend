@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 public class Account {
     Long id;
-    String userId;
+    Long userId;
     String accountNumber;
     BigDecimal balance;
     AccountStatus status;
@@ -18,20 +18,14 @@ public class Account {
 
     @Builder
     public Account(
-        Long id,
-        String userId,
+        Long userId,
         String accountNumber,
         BigDecimal balance,
-        AccountStatus status,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        AccountStatus status
     ) {
-        this.id = id;
         this.userId = userId;
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.status = status;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 }

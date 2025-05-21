@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     id                        BIGINT                                AUTO_INCREMENT PRIMARY KEY,
     user_id                   BIGINT                                NOT NULL COMMENT '유저 아이디',
     account_number            VARCHAR(40)                           NOT NULL COMMENT '계좌 번호' ,
-    balance                   BIGINT                                NULL     COMMENT '잔액' ,
+    balance                   BIGINT              DEFAULT 0         NOT NULL     COMMENT '잔액' ,
     account_status            VARCHAR(15)                           NOT NULL COMMENT '계좌 상태' ,
     created_at                DATETIME                              NOT NULL,
     updated_at                DATETIME                              NOT NULL
