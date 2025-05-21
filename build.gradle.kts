@@ -1,37 +1,73 @@
 plugins {
     java
-    id("org.springframework.boot") version "3.4.5"
-    id("io.spring.dependency-management") version "1.1.7"
+    id("org.springframework.boot") apply false
+    id("io.spring.dependency-management") apply false
 }
 
-group = "com.example"
-version = "0.0.1-SNAPSHOT"
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+allprojects {
+    apply(plugin = "java")
+
+    group = "choihyangkeun_backend"
+    version = "0.0.1-SNAPSHOT"
+
+    configurations {
+        all {
+            exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
+            exclude(group = "io.undertow", module = "undertow-websockets-jsr")
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    configure<JavaPluginExtension> {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
     }
 }
 
-configurations {
-    compileOnly {
-        extendsFrom(configurations.annotationProcessor.get())
+val projects = listOf(
+    project(":wirebarley-core"),
+    project(":wirebarley-infra")
+)
+
+configure(projects) {
+    apply(plugin = "org.springframework.boot")
+    apply(plugin = "io.spring.dependency-management")
+
+    dependencies {
+        implementation("org.springframework.boot:spring-boot-starter")
+        testImplementation("org.springframework.boot:spring-boot-starter-test")
     }
 }
 
-repositories {
-    mavenCentral()
-}
+val applicationProjects = listOf(
+    project(":wirebarley-api"),
+)
 
-dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    compileOnly("org.projectlombok:lombok")
-    runtimeOnly("com.h2database:h2")
-    annotationProcessor("org.projectlombok:lombok")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
+configure(applicationProjects) {
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+    dependencies {
+        implementation(project(":wirebarley-core"))
+        implementation(project(":wirebarley-infra"))
+
+        val springCloudDependenciesVersion: String by project
+        implementation("org.springframework.boot:spring-boot-starter-web")
+        implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+
+        implementation("org.springframework.boot:spring-boot-starter-webflux")
+        implementation("org.springframework.boot:spring-boot-starter-undertow")
+
+        implementation("org.springframework.boot:spring-boot-starter-validation")
+        implementation(enforcedPlatform("org.springframework.cloud:spring-cloud-dependencies:$springCloudDependenciesVersion"))
+        compileOnly("org.projectlombok:lombok:1.18.24")
+        annotationProcessor("org.projectlombok:lombok:1.18.24")
+        testImplementation("org.springframework.boot:spring-boot-starter-test")
+    }
 }
