@@ -15,4 +15,10 @@ public class AccountRepositoryImpl implements IAccountRepository {
     public Account save(Account account) {
         return accountJpaRepository.save(new AccountEntity().from(account)).toModel();
     }
+
+    @Override
+    public Account findByAccountId(Long accountId) {
+        return accountJpaRepository.findByAccountId(accountId)
+            .orElseThrow().toModel();
+    }
 }

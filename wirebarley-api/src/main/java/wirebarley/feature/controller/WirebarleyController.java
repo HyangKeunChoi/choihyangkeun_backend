@@ -1,6 +1,7 @@
 package wirebarley.feature.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import wirebarley.feature.controller.dto.AccountCreateRequest;
@@ -14,17 +15,19 @@ public class WirebarleyController {
     private final WirebarleyService wirebarleyService;
 
     @PostMapping
-    public void createAccount(
+    public ResponseEntity createAccount(
         @RequestBody @Validated AccountCreateRequest request
     ) {
         wirebarleyService.createAccount(request);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{account_id}")
-    public void deleteAccount(
-        @PathVariable long account_id
+    public ResponseEntity deleteAccount(
+        @PathVariable(name = "account_id") Long accountId
     ) {
-
+        wirebarleyService.deleteAccount(accountId);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{account_id}/deposit")

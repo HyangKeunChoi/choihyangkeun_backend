@@ -11,9 +11,10 @@ import wirebarley.repository.IAccountRepository;
 @Transactional
 @Service
 @RequiredArgsConstructor
-public class WirebarleyService  {
+public class WirebarleyService {
     private final IAccountRepository accountRepository;
 
+    @Transactional
     public void createAccount(AccountCreateRequest request) {
         Account account = Account.builder()
             .userId(request.userId())
@@ -21,7 +22,13 @@ public class WirebarleyService  {
             .status(AccountStatus.ACTIVE)
             .build();
 
+        // TODO : validation
 
         accountRepository.save(account);
+    }
+
+    @Transactional
+    public void deleteAccount(Long accountId) {
+        accountRepository.findByAccountId(accountId);
     }
 }
