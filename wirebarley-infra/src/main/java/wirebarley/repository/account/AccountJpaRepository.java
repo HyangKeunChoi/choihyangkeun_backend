@@ -4,5 +4,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import wirebarley.entity.AccountEntity;
 
 public interface AccountJpaRepository extends JpaRepository<AccountEntity, Long> {
-    AccountEntity findByAccountId(Long accountId);
 }

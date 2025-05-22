@@ -12,28 +12,22 @@ public class Transfer {
     Long receiverAccountId;
     int transferAmount;
     String description;
-    LocalDateTime transferDate;
+    LocalDateTime transferAt;
     LocalDateTime createDate;
     LocalDateTime updateDate;
 
     @Builder
     public Transfer(
-        Long id,
         Long senderAccountId,
         Long receiverAccountId,
         int transferAmount,
         String description,
-        LocalDateTime transferDate,
-        LocalDateTime createDate,
-        LocalDateTime updateDate
+        LocalDateTime transferAt
     ) {
-        this.id = id;
         this.senderAccountId = senderAccountId;
         this.receiverAccountId = receiverAccountId;
         this.transferAmount = transferAmount;
         this.description = description;
-        this.transferDate = transferDate;
-        this.createDate = createDate;
-        this.updateDate = updateDate;
+        this.transferAt = transferAt;
     }
 }

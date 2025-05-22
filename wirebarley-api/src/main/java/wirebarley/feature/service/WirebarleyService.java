@@ -5,17 +5,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wirebarley.domain.Account;
 import wirebarley.domain.AccountStatus;
+import wirebarley.domain.Transfer;
 import wirebarley.exception.AccountNotExistException;
 import wirebarley.feature.controller.dto.AccountCreateRequest;
 import wirebarley.feature.controller.dto.AccountDepositRequest;
 import wirebarley.repository.IAccountRepository;
+import wirebarley.repository.ITransfersRepository;
 import wirebarley.util.RedisLockUtils;
+
+import java.time.LocalDateTime;
 
 @Transactional
 @Service
 @RequiredArgsConstructor
 public class WirebarleyService {
     private final IAccountRepository accountRepository;
+    private final ITransfersRepository transfersRepository;
+
     private final RedisLockUtils redisLockUtils;
     private static final String DEPOSIT_LOCK_PREFIX = "deposit:lock:account:";
 
@@ -34,7 +40,7 @@ public class WirebarleyService {
 
     @Transactional
     public void deleteAccount(Long accountId) {
-        Account account = accountRepository.findByAccountId(accountId);
+        Account account = accountRepository.findById(accountId);
         if (account == null) throw new AccountNotExistException();
 
         accountRepository.deleteByAccountId(account.getId());
@@ -60,9 +66,18 @@ public class WirebarleyService {
 
     @Transactional
     public void depositAccount(AccountDepositRequest request) {
-        Account account = accountRepository.findByAccountId(request.accountId());
+        Account account = accountRepository.findById(request.accountId());
         if (account == null) throw new AccountNotExistException();
 
         account.deposit(request.transferAmount());
+
+        Transfer transfer = Transfer.builder()
+            .senderAccountId(account.getId())
+            .receiverAccountId(account.getId())
+            .transferAmount(request.transferAmount())
+            .description(request.description())
+            .transferAt(LocalDateTime.now())
+            .build();
+        transfersRepository.save(transfer);
     }
 }

@@ -4,6 +4,6 @@ import wirebarley.domain.Account;
 
 public interface IAccountRepository {
     Account save(Account account);
-    Account findByAccountId(Long accountId);
+    Account findById(Long accountId);
     void deleteByAccountId(Long accountId);
 }

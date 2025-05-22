@@ -6,6 +6,8 @@ import wirebarley.domain.Account;
 import wirebarley.entity.AccountEntity;
 import wirebarley.repository.IAccountRepository;
 
+import java.util.Optional;
+
 @AllArgsConstructor
 @Repository
 public class AccountRepositoryImpl implements IAccountRepository {
@@ -17,8 +19,13 @@ public class AccountRepositoryImpl implements IAccountRepository {
     }
 
     @Override
-    public Account findByAccountId(Long accountId) {
-        return accountJpaRepository.findByAccountId(accountId).toModel();
+    public Account findById(Long accountId) {
+        Optional<AccountEntity> account = accountJpaRepository.findById(accountId);
+        if (account.isPresent()) {
+            return account.get().toModel();
+        } else {
+            return null;
+        }
     }
 
     @Override
