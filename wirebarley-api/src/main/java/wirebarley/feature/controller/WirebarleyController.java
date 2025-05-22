@@ -1,11 +1,15 @@
 package wirebarley.feature.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import wirebarley.feature.controller.dto.AccountCreateRequest;
 import wirebarley.feature.controller.dto.AccountDepositRequest;
+import wirebarley.feature.controller.dto.AccountTransferRequest;
 import wirebarley.feature.controller.dto.AccountWithdrawRequest;
 import wirebarley.feature.service.WirebarleyService;
 
@@ -48,21 +52,25 @@ public class WirebarleyController {
     public ResponseEntity withdraw(
         @RequestBody @Validated AccountWithdrawRequest request
     ) {
-        wirebarleyService.withdraw(request);
+        wirebarleyService.withdrawAccountWithLock(request);
         return ResponseEntity.ok().build();
     }
 
     // 이체
     @PostMapping("/transfer")
-    public void transfer() {
-
+    public ResponseEntity transfer(
+        @RequestBody @Validated AccountTransferRequest request
+    ) {
+        wirebarleyService.transferAccountWithLock(request);
+        return ResponseEntity.ok().build();
     }
 
     // 거래 내역 조회
     @GetMapping("/{account_id}/transaction")
     public void getTransaction(
-        @PathVariable(name = "account_id") Long accountId
+        @PathVariable(name = "account_id") Long accountId,
+        @PageableDefault(page = 0, size = 10, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
-
+        wirebarleyService.getTransaction(accountId, pageable);
     }
 }

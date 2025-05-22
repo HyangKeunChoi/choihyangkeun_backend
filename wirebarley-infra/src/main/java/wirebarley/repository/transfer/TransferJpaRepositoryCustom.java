@@ -1,11 +1,9 @@
-package wirebarley.repository;
+package wirebarley.repository.transfer;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import wirebarley.domain.Transfer;
 
-public interface ITransfersRepository {
-    Transfer save(Transfer transfer);
-
+public interface TransferJpaRepositoryCustom {
     Slice<Transfer> findAllByAccountId(Long accountId, Pageable pageable);
 }
