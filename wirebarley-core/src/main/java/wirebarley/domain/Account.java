@@ -28,4 +28,8 @@ public class Account {
         this.balance = balance;
         this.status = status;
     }
+
+    public void deposit(int amount) {
+        this.balance = this.balance.add(BigDecimal.valueOf(amount));
+    }
 }

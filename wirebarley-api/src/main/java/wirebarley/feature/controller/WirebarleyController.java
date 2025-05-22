@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import wirebarley.feature.controller.dto.AccountCreateRequest;
+import wirebarley.feature.controller.dto.AccountDepositRequest;
 import wirebarley.feature.service.WirebarleyService;
 
 @Validated
@@ -19,6 +20,8 @@ public class WirebarleyController {
         @RequestBody @Validated AccountCreateRequest request
     ) {
         wirebarleyService.createAccount(request);
+
+        // 200 ok,  201 created로 응답 가능
         return ResponseEntity.ok().build();
     }
 
@@ -30,14 +33,16 @@ public class WirebarleyController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{account_id}/deposit")
+    // 입금
+    @PostMapping("/deposit")
     public ResponseEntity deposit(
-        @PathVariable(name = "account_id") Long accountId
+        @RequestBody @Validated AccountDepositRequest request
     ) {
-
+        wirebarleyService.depositAccountWithLock(request);
         return ResponseEntity.ok().build();
     }
 
+    // 출금
     @PostMapping("/{account_id}/withdraw")
     public void withdraw(
         @PathVariable(name = "account_id") Long accountId
@@ -45,11 +50,13 @@ public class WirebarleyController {
 
     }
 
+    // 이체
     @PostMapping("/transfer")
     public void transfer() {
 
     }
 
+    // 거래 내역 조회
     @GetMapping("/{account_id}/transaction")
     public void getTransaction(
         @PathVariable(name = "account_id") Long accountId
