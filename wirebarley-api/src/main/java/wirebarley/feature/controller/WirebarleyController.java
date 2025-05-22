@@ -31,15 +31,16 @@ public class WirebarleyController {
     }
 
     @PostMapping("/{account_id}/deposit")
-    public void deposit(
-        @PathVariable long account_id
+    public ResponseEntity deposit(
+        @PathVariable(name = "account_id") Long accountId
     ) {
 
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{account_id}/withdraw")
     public void withdraw(
-        @PathVariable long account_id
+        @PathVariable(name = "account_id") Long accountId
     ) {
 
     }
@@ -51,7 +52,7 @@ public class WirebarleyController {
 
     @GetMapping("/{account_id}/transaction")
     public void getTransaction(
-        @PathVariable long account_id
+        @PathVariable(name = "account_id") Long accountId
     ) {
 
     }

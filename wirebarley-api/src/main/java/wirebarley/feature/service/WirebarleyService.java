@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wirebarley.domain.Account;
 import wirebarley.domain.AccountStatus;
+import wirebarley.exception.AccountNotExistException;
 import wirebarley.feature.controller.dto.AccountCreateRequest;
 import wirebarley.repository.IAccountRepository;
 
@@ -29,6 +30,9 @@ public class WirebarleyService {
 
     @Transactional
     public void deleteAccount(Long accountId) {
-        accountRepository.findByAccountId(accountId);
+        Account account = accountRepository.findByAccountId(accountId);
+        if (account == null) throw new AccountNotExistException();
+
+        accountRepository.deleteByAccountId(account.getId());
     }
 }

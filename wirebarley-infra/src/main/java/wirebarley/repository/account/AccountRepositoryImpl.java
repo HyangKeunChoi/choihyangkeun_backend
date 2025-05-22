@@ -18,7 +18,11 @@ public class AccountRepositoryImpl implements IAccountRepository {
 
     @Override
     public Account findByAccountId(Long accountId) {
-        return accountJpaRepository.findByAccountId(accountId)
-            .orElseThrow().toModel();
+        return accountJpaRepository.findByAccountId(accountId).toModel();
+    }
+
+    @Override
+    public void deleteByAccountId(Long accountId) {
+        accountJpaRepository.deleteById(accountId);
     }
 }
