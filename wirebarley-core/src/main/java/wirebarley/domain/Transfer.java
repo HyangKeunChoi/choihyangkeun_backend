@@ -16,6 +16,8 @@ public class Transfer {
     LocalDateTime createDate;
     LocalDateTime updateDate;
 
+    // TODO : status나 type 추가 고려 - 입금, 출금, 이체...
+
     @Builder
     public Transfer(
         Long senderAccountId,

@@ -6,6 +6,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import wirebarley.feature.controller.dto.AccountCreateRequest;
 import wirebarley.feature.controller.dto.AccountDepositRequest;
+import wirebarley.feature.controller.dto.AccountWithdrawRequest;
 import wirebarley.feature.service.WirebarleyService;
 
 @Validated
@@ -44,10 +45,11 @@ public class WirebarleyController {
 
     // 출금
     @PostMapping("/{account_id}/withdraw")
-    public void withdraw(
-        @PathVariable(name = "account_id") Long accountId
+    public ResponseEntity withdraw(
+        @RequestBody @Validated AccountWithdrawRequest request
     ) {
-
+        wirebarleyService.withdraw(request);
+        return ResponseEntity.ok().build();
     }
 
     // 이체

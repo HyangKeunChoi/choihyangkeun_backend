@@ -2,6 +2,7 @@ package wirebarley.util;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -10,7 +11,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class RedisLockUtils {
+public class RedisUtils {
 
     private final StringRedisTemplate redisTemplate;
     private static final long LOCK_TIMEOUT_SECONDS = 5;
@@ -41,6 +42,23 @@ public class RedisLockUtils {
             return Boolean.TRUE.equals(redisTemplate.delete(lockKey));
         }
         return false;
+    }
+
+    public long incrementOrResetCounter(
+        String key,
+        Duration duration,
+        int value
+    ) {
+        redisTemplate.opsForValue().setIfAbsent(key, "0");
+        Long incrementedValue = redisTemplate.opsForValue().increment(key, value);
+        long result = incrementedValue != null ? incrementedValue : 0;
+        redisTemplate.expire(key, duration);
+        return result;
+    }
+
+    public String get(String key) {
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        return ops.get(key);
     }
 
 }

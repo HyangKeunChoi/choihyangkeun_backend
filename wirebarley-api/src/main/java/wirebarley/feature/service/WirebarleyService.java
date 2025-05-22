@@ -7,12 +7,16 @@ import wirebarley.domain.Account;
 import wirebarley.domain.AccountStatus;
 import wirebarley.domain.Transfer;
 import wirebarley.exception.AccountNotExistException;
+import wirebarley.exception.WithdrawLimitException;
 import wirebarley.feature.controller.dto.AccountCreateRequest;
 import wirebarley.feature.controller.dto.AccountDepositRequest;
+import wirebarley.feature.controller.dto.AccountWithdrawRequest;
 import wirebarley.repository.IAccountRepository;
 import wirebarley.repository.ITransfersRepository;
-import wirebarley.util.RedisLockUtils;
+import wirebarley.util.RedisUtils;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Transactional
@@ -22,8 +26,9 @@ public class WirebarleyService {
     private final IAccountRepository accountRepository;
     private final ITransfersRepository transfersRepository;
 
-    private final RedisLockUtils redisLockUtils;
+    private final RedisUtils redisUtils;
     private static final String DEPOSIT_LOCK_PREFIX = "deposit:lock:account:";
+    private static final String WITHDRAW_LOCK_PREFIX = "withdraw:lock:account:";
 
     @Transactional
     public void createAccount(AccountCreateRequest request) {
@@ -51,7 +56,7 @@ public class WirebarleyService {
     // TODO : 입금이 실패하면 에러가 발생하지 않고 별도의 보상 트랜잭션이 발생할 수 있도록 변경 고려
     public void depositAccountWithLock(AccountDepositRequest request) {
         String lockKey = DEPOSIT_LOCK_PREFIX + request.accountId();
-        String clientId = redisLockUtils.acquireLockWithRetry(lockKey);
+        String clientId = redisUtils.acquireLockWithRetry(lockKey);
 
         if (clientId == null) {
             throw new IllegalStateException("Cannot acquire lock for account: " + request.accountId());
@@ -60,7 +65,7 @@ public class WirebarleyService {
         try {
             depositAccount(request);
         } finally {
-            redisLockUtils.releaseLock(lockKey, clientId);
+            redisUtils.releaseLock(lockKey, clientId);
         }
     }
 
@@ -78,6 +83,38 @@ public class WirebarleyService {
             .description(request.description())
             .transferAt(LocalDateTime.now())
             .build();
+        transfersRepository.save(transfer);
+    }
+
+    @Transactional
+    public void withdraw(AccountWithdrawRequest request) {
+        Account account = accountRepository.findById(request.accountId());
+        if (account == null) throw new AccountNotExistException();
+
+        // 레디스로 일일 한도 계산
+        // REDIS가 죽으면 db를 조회 할지 고려해 본다.
+        String key = WITHDRAW_LOCK_PREFIX + LocalDate.now() + ":" + request.accountId();
+        int todayTargetAccountTotalWithdraw = Integer.parseInt(redisUtils.get(key));
+
+        if (todayTargetAccountTotalWithdraw > 1_000_000) {
+            throw new WithdrawLimitException();
+        }
+
+        account.withdraw(request.transferAmount());
+        redisUtils.incrementOrResetCounter(
+            key,
+            Duration.ofHours(30), // 하루보다 크게 설정
+            request.transferAmount()
+        );
+
+        Transfer transfer = Transfer.builder()
+            .senderAccountId(account.getId())
+            .receiverAccountId(account.getId())
+            .transferAmount(request.transferAmount() * -1)
+            .description(request.description())
+            .transferAt(LocalDateTime.now())
+            .build();
+
         transfersRepository.save(transfer);
     }
 }
