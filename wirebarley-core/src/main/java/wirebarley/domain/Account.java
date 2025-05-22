@@ -34,6 +34,9 @@ public class Account {
     }
 
     public void withdraw(int amount) {
+        if (balance.compareTo(BigDecimal.valueOf(amount)) < 0) {
+            throw new IllegalArgumentException();
+        }
         this.balance = this.balance.subtract(BigDecimal.valueOf(amount));
     }
 }

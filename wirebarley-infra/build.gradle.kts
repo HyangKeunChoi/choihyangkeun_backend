@@ -15,6 +15,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("com.querydsl:querydsl-jpa:5.0.0")
+    annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jpa")
+    annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+    annotationProcessor("jakarta.persistence:jakarta.persistence-api")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
     runtimeOnly("com.h2database:h2")
@@ -30,4 +33,17 @@ dependencies {
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+}
+
+// (Querydsl 설정부 추가 - start)
+val generated = file("src/main/generated")
+// querydsl QClass 파일 생성 위치를 지정
+tasks.withType<JavaCompile> {
+    options.generatedSourceOutputDirectory.set(generated)
+}
+// kotlin source set 에 querydsl QClass 위치 추가
+sourceSets {
+    main {
+        java.srcDirs += generated
+    }
 }

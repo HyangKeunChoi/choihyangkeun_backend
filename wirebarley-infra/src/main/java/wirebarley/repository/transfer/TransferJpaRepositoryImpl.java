@@ -7,9 +7,13 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 import wirebarley.domain.Transfer;
+import wirebarley.entity.TransferEntity;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static wirebarley.entity.QTransferEntity.transferEntity;
 
 @Repository
 public class TransferJpaRepositoryImpl extends QuerydslRepositorySupport implements TransferJpaRepositoryCustom {
@@ -23,14 +27,16 @@ public class TransferJpaRepositoryImpl extends QuerydslRepositorySupport impleme
 
     @Override
     public Slice<Transfer> findAllByAccountId(Long accountId, Pageable pageable) {
-        QTransfer transfer = QTransfer.transfer;
-
-        List<Transfer> results = jpaQueryFactory.selectFrom(transfer)
-            .where(transfer.senderAccountId.eq(accountId).or(transfer.receiverAccountId.eq(accountId)))
-            .orderBy(transfer.transferAt.desc())
+        List<TransferEntity> transferEntities = jpaQueryFactory.selectFrom(transferEntity)
+            .where(transferEntity.senderAccountId.eq(accountId).or(transferEntity.receiverAccountId.eq(accountId)))
+            .orderBy(transferEntity.transferAt.desc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize() + 1)
             .fetch();
+
+        List<Transfer> results = transferEntities.stream()
+            .map(TransferEntity::toModel)
+            .collect(Collectors.toList());
 
         boolean hasNext = results.size() > pageable.getPageSize();
         if (hasNext) {
