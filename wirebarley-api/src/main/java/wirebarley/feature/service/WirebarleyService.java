@@ -138,7 +138,11 @@ public class WirebarleyService {
             throw new WithdrawLimitException();
         }
 
-        account.withdraw(request.transferAmount());
+        try {
+            account.withdraw(request.transferAmount());
+        } catch (IllegalArgumentException e) {
+            throw new InsufficientException();
+        }
         redisUtils.incrementOrResetCounter(
             key,
             Duration.ofHours(30), // 하루보다 크게 설정
@@ -197,13 +201,12 @@ public class WirebarleyService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity<Slice<Transfer>> getTransaction(
+    public Slice<Transfer> getTransaction(
         Long accountId,
         Pageable pageable
     ) {
-        Slice<Transfer> result = transfersRepository.findAllByAccountId(
+        return transfersRepository.findAllByAccountId(
             accountId, pageable
         );
-        return ResponseEntity.ok(result);
     }
 }

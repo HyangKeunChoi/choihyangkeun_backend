@@ -2,11 +2,13 @@ package wirebarley.feature.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import wirebarley.domain.Transfer;
 import wirebarley.feature.controller.dto.AccountCreateRequest;
 import wirebarley.feature.controller.dto.AccountDepositRequest;
 import wirebarley.feature.controller.dto.AccountTransferRequest;
@@ -67,10 +69,10 @@ public class WirebarleyController {
 
     // 거래 내역 조회
     @GetMapping("/{account_id}/transaction")
-    public void getTransaction(
+    public ResponseEntity<Slice<Transfer>> getTransaction(
         @PathVariable(name = "account_id") Long accountId,
         @PageableDefault(page = 0, size = 10, sort = {"id"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        wirebarleyService.getTransaction(accountId, pageable);
+        return ResponseEntity.ok(wirebarleyService.getTransaction(accountId, pageable));
     }
 }
